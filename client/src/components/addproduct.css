@@ -1,0 +1,16 @@
+.add-product {
+        width: 50%;
+    /* align-items: center; */
+    margin: 0 auto;
+    text-align: center;
+}
+.add-product-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem
+}
+.field-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}

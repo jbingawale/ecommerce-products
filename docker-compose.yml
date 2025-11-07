@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # ------------------------------------
+  # 1. NODE.JS APPLICATION SERVICE
+  # ------------------------------------
+  app:
+    # Use the Dockerfile in the current directory (where you run 'docker compose up')
+    build:
+      context: .
+      dockerfile: Dockerfile
+    
+    # Map the container port (8000) to the host port (8000)
+    ports:
+      - "8000:8000"
+    restart: always
+    # Environment variables for the Node.js application
+    environment:
+      # NOTE: We use the SERVICE NAME ('db') as the host name
+      DB_HOST: db
+      DB_USER: node_user
+      DB_PASSWORD: abcd@1234
+      DB_DATABASE: mydb
+      DB_PORT: 5432
+      PORT: 8000
+      
+    # Ensures the app waits for the database to be running
+    depends_on:
+      - db
+
+  # ------------------------------------
+  # 2. POSTGRESQL DATABASE SERVICE
+  # ------------------------------------
+  db:
+    image: postgres:16-alpine
+    restart: always
+    
+    # Store persistent data in a named volume so data survives container restarts
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # This volume copies our initialization script into the container
+      - ./db_scripts:/docker-entrypoint-initdb.d
+      
+    environment:
+      # PostgreSQL configuration variables
+      POSTGRES_USER: postgres  # Default initial administrative user
+      POSTGRES_PASSWORD: root_password_temp
+      POSTGRES_DB: mydb
+      
+      # The credentials below are for the 'node_user' that the application will use
+      DB_USER: node_user
+      DB_PASSWORD: abcd@1234
+
+# Volumes defined here are persistent data storage
+volumes:
+  postgres_data:
